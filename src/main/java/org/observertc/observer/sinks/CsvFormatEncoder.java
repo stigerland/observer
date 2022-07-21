@@ -60,14 +60,16 @@ public class CsvFormatEncoder<K, V> implements FormatEncoder<K, V> {
     public Map<K, List<V>> map(List<Report> reports) {
         try {
             Map<K, List<V>> records = new HashMap<K, List<V>>();
-            var stringBuilder = new StringBuffer();
-            var csvPrinter = new CSVPrinter(stringBuilder, format);
-            var chunkSize = 0;
-            var reportsByTypes = reports.stream().collect(groupingBy(r -> r.type));
+
+
             for (var it = reportsByTypes.entrySet().iterator(); it.hasNext(); ) {
                 var entry = it.next();
                 var type = entry.getKey();
                 var groupedReports = entry.getValue();
+                var stringBuilder = new StringBuffer();
+                var csvPrinter = new CSVPrinter(stringBuilder, format);
+                var chunkSize = 0;
+                var reportsByTypes = reports.stream().collect(groupingBy(r -> r.type));
                 for (var jt = groupedReports.iterator(); jt.hasNext(); ) {
                     var report = jt.next();
                     var iterable = mapper.apply(report, type);
@@ -90,9 +92,6 @@ public class CsvFormatEncoder<K, V> implements FormatEncoder<K, V> {
                     }
 
                     mappedRecords.add(myRecord);
-                    stringBuilder = new StringBuffer();
-                    csvPrinter = new CSVPrinter(stringBuilder, CSVFormat.DEFAULT);
-                    chunkSize = 0;
                 }
             }
             logger.info("Received {} reports ({} types) mapped to {} different type of records", reports.size(), reportsByTypes.size(), records.size());
